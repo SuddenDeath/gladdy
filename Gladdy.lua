@@ -715,11 +715,10 @@ function Gladdy:Sync()
 end
 
 function Gladdy:OnCommReceived(prefix, message, dest, sender)
-    if (prefix == "Gladdy" and sender ~= UnitName("player")) then
+    if (prefix == "Gladdy" --[[and sender ~= UnitName("player")]]) then
         local name, guid, class, classLoc, raceLoc, spec, health, healthMax, power, powerMax, powerType = strsplit(',', message)
         health, healthMax = tonumber(health), tonumber(healthMax)
         power, powerMax, powerType = tonumber(power), tonumber(powerMax), tonumber(powerType)
-
         local unit = self.guids[guid]
         if (not unit) then
             unit = self:EnemySpotted(name, guid, class, classLoc, raceLoc)
