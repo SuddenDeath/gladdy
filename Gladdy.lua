@@ -734,7 +734,6 @@ end
 
 function Gladdy:OnCommReceived(prefix, message, dest, sender)
 	-- hack, to avoid faulty messages from ArenaIdentify (not server sent)
-	self:Print(prefix.."  "..message)
 	if dest ~= "WHISPER" then return end
 	----
     if (prefix == "Gladdy" and sender ~= UnitName("player")) then
