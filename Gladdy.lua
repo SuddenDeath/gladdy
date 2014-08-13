@@ -297,6 +297,11 @@ function Gladdy:PLAYER_ENTERING_WORLD()
 end
 
 function Gladdy:Reset()
+	if type(self.guids) == "table" then
+		for k,v in pairs(self.guids) do
+			self.guids[k] = nil
+		end
+	end
     self.guids = {}
     self.curBracket = nil
     self.curUnit = 1
@@ -308,6 +313,7 @@ function Gladdy:Reset()
     for k2 in pairs(self.buttons) do
         self:ResetUnit(k2)
     end
+	
 end
 
 function Gladdy:ResetUnit(unit)
@@ -318,6 +324,19 @@ function Gladdy:ResetUnit(unit)
 
     button._health = nil
     button._power = nil
+	
+	button.name = nil
+	button.health = nil
+	button.healthMax = nil
+	button.power = nil
+	button.powerMax = nil
+	button.powerType = nil
+    button.guid = nil
+    button.class = nil
+    button.classLoc = nil
+    button.raceLoc = nil
+    button.spec = nil
+	
 
     for k1, v1 in pairs(self.BUTTON_DEFAULTS) do
         button[k1] = v1
@@ -707,7 +726,6 @@ function Gladdy:Sync()
 
                 v._health = v.health
                 v._power = v.power
-
                 self:SendCommMessage("Gladdy", message, "PARTY", nil, "ALERT")
             end
         end
@@ -715,7 +733,11 @@ function Gladdy:Sync()
 end
 
 function Gladdy:OnCommReceived(prefix, message, dest, sender)
-    if (prefix == "Gladdy" --[[and sender ~= UnitName("player")]]) then
+	-- hack, to avoid faulty messages from ArenaIdentify (not server sent)
+	self:Print(prefix.."  "..message)
+	if dest ~= "WHISPER" then return end
+	----
+    if (prefix == "Gladdy" and sender ~= UnitName("player")) then
         local name, guid, class, classLoc, raceLoc, spec, health, healthMax, power, powerMax, powerType = strsplit(',', message)
         health, healthMax = tonumber(health), tonumber(healthMax)
         power, powerMax, powerType = tonumber(power), tonumber(powerMax), tonumber(powerType)
