@@ -524,6 +524,7 @@ function Gladdy:UNIT_SPELLCAST_START(event, uid)
     if (not button) then return end
 
     local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(uid)
+    if not endTime then return end
     local value = (endTime / 1000) - GetTime()
     local maxValue = (endTime - startTime) / 1000
 
@@ -535,6 +536,7 @@ function Gladdy:UNIT_SPELLCAST_CHANNEL_START(event, uid)
     if (not button) then return end
 
     local spell, rank, displayName, icon, startTime, endTime = UnitChannelInfo(uid)
+    if not endTime then return end
     local value = (endTime / 1000) - GetTime()
     local maxValue = (endTime - startTime) / 1000
 
