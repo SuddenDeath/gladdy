@@ -20,7 +20,6 @@ Gladdy.defaults = {
         frameColor = {r = 0, g = 0, b = 0, a = .4},
         barWidth = 180,
         bottomMargin = 10,
-		cooldownPos = "RIGHT",
     },
 }
 

@@ -130,12 +130,11 @@ function Gladdy:SendMessage(message, ...)
 end
 
 function Gladdy:NewModule(name, priority, defaults)
-    local module = {
-        name = name,
-        priority = priority or 0,
-        defaults = defaults or {},
-        messages = {},
-    }
+    local module = CreateFrame("Frame")
+    module.name = name
+    module.priority = priority or 0
+    module.defaults = defaults or {}
+    module.messages = {}
 
     module.RegisterMessage = function(self, message, func)
         self.messages[message] = func or message
@@ -375,10 +374,14 @@ function Gladdy:JoinedArena()
     for i = 1, MAX_BATTLEFIELD_QUEUES do
         local status, _, _, _, _, teamSize = GetBattlefieldStatus(i)
 		if teamSize > 5 then teamSize = 3 end
-        if teamSize > 0 then
+        if (status == "active" and teamSize > 0) then
             self.curBracket = teamSize
             break
         end
+    end
+    
+    if not self.curBracket then
+      self.curBracket = 2
     end
 
     for i = 1, self.curBracket do
