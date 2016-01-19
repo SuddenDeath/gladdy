@@ -12,6 +12,7 @@ local Nameplates = Gladdy:NewModule("Nameplates", nil, {
 LibStub("AceHook-3.0"):Embed(Nameplates)
 LibStub("AceTimer-3.0"):Embed(Nameplates)
 
+
 local totems = {
 	["Nameplates"] = {},
 	["Totems"] = {

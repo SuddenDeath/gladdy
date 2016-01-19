@@ -22,6 +22,7 @@ Modules\Diminishings.lua
 Modules\Healthbar.lua
 Modules\Highlight.lua
 Modules\Nameplates.lua
+Modules\PlateCastbar.lua
 Modules\Powerbar.lua
 Modules\Trinket.lua
 Modules\Cooldowns.lua

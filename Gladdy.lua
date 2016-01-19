@@ -1023,11 +1023,11 @@ function Gladdy:UpdateGUID(guid, uid)
     self:UNIT_AURA(nil, uid)
     self:UNIT_HEALTH(nil, uid)
     self:UNIT_POWER(nil, uid)
-    if select(1, UnitChannelInfo(uid)) then
-      self:UNIT_SPELLCAST_CHANNEL_START(nil, uid)
-    else
-      self:UNIT_SPELLCAST_START(nil, uid)
-    end
+--    if select(1, UnitChannelInfo(uid)) then
+--      self:UNIT_SPELLCAST_CHANNEL_START(nil, uid)
+--    else
+--      self:UNIT_SPELLCAST_START(nil, uid)
+--    end
     
 end
 
