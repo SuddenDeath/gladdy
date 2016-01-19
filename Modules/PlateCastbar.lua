@@ -1,5 +1,8 @@
 local AddOn = "PlateCastBar"
 local Gladdy = LibStub("Gladdy")
+local WorldFrame = WorldFrame
+local select = select
+local pairs = pairs
 
 function log(...)
 	local text = ""
@@ -229,7 +232,6 @@ Frame:SetScript("OnEvent",function(self,event,unitID,spell,...)
 			CastBars_Create()
 			_G[AddOn .. "_PlayerEnteredWorld"] = true
 		end
-		Table["Nameplates"] = {}
 	end
 
 
