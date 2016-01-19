@@ -229,6 +229,7 @@ Frame:SetScript("OnEvent",function(self,event,unitID,spell,...)
 			CastBars_Create()
 			_G[AddOn .. "_PlayerEnteredWorld"] = true
 		end
+		Table["Nameplates"] = {}
 	end
 
 
