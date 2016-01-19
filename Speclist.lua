@@ -6,8 +6,6 @@ local L = Gladdy.L
 function Gladdy:GetSpecBuffs()
     return {
         -- DRUID
-        --[GetSpellInfo(24858)] = L["Balance"],         -- Moonkin Form
-		--[GetSpellInfo(17007)] = L["Feral"],             -- Leader of the Pack
 		[GetSpellInfo(33881)] = L["Restoration"],         -- Natural Perfection
 		[GetSpellInfo(16880)] = L["Restoration"],         -- Nature's Grace; Dreamstate spec in TBC equals Restoration
 		[GetSpellInfo(24858)] = L["Restoration"],         -- Moonkin Form; Dreamstate spec in TBC equals Restoration 
@@ -16,7 +14,6 @@ function Gladdy:GetSpecBuffs()
         [GetSpellInfo(34692)] = L["Beast Mastery"],     -- The Beast Within
         [GetSpellInfo(20895)] = L["Beast Mastery"],     -- Spirit Bond
         [GetSpellInfo(34455)] = L["Beast Mastery"],     -- Ferocious Inspiration
-		--[GetSpellInfo(27066)] = L["Marksmanship"],      -- Trueshot Aura
 
         -- MAGE
         [GetSpellInfo(33405)] = L["Frost"],             -- Ice Barrier
@@ -24,8 +21,7 @@ function Gladdy:GetSpecBuffs()
         -- PALADIN
         [GetSpellInfo(31836)] = L["Holy"],              -- Light's Grace
         [GetSpellInfo(20375)] = L["Retribution"],       -- Seal of Command
-        --[GetSpellInfo(20218)] = L["Retribution"],       -- Sanctity Aura
-        [GetSpellInfo(20049)] = L["Retribution"],       -- Sanctity Aura
+        [GetSpellInfo(20049)] = L["Retribution"],       -- Vengeance
 
         -- PRIEST
         [GetSpellInfo(15473)] = L["Shadow"],            -- Shadowform
@@ -83,7 +79,7 @@ function Gladdy:GetSpecSpells()
         [GetSpellInfo(27170)] = L["Retribution"],       -- Seal of Command
         [GetSpellInfo(35395)] = L["Retribution"],       -- Crusader Strike
         [GetSpellInfo(20066)] = L["Retribution"],       -- Repentance
-		[GetSpellInfo(20218)] = L["Retribution"],       -- Sanctity Aura
+		    [GetSpellInfo(20218)] = L["Retribution"],       -- Sanctity Aura
 
         -- PRIEST
         [GetSpellInfo(10060)] = L["Discipline"],        -- Power Infusion

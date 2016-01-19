@@ -278,6 +278,12 @@ local function option(params)
         end,
         set = function(info, value)
             local key = info.arg or info[#info]
+            -- hackfix to prevent DR/cooldown to be on the same side
+            if( key == "drCooldownPos" and value == "LEFT") then
+              Gladdy.db.cooldownPos = "RIGHT"
+            elseif ( key == "drCooldownPos" and value == "RIGHT" ) then
+              Gladdy.db.cooldownPos = "LEFT"
+            end
             Gladdy.dbi.profile[key] = value
             Gladdy:UpdateFrame()
         end,

@@ -8,7 +8,7 @@ local Cooldown = Gladdy:NewModule("Cooldown", nil, {
 })
 
 function Cooldown:Test(unit)
-		--[[local button = Gladdy.buttons[unit]
+		local button = Gladdy.buttons[unit]
 		self.cooldownSpells = Gladdy:GetCooldownList()
 		button.lastCooldownSpell = 1
 		local class = "WARRIOR"
@@ -20,7 +20,7 @@ function Cooldown:Test(unit)
 			icon.texture:SetTexture(Gladdy.spellTextures[k])
 			button.spellCooldownFrame["icon" .. button.lastCooldownSpell] = icon
 			button.lastCooldownSpell = button.lastCooldownSpell + 1  
-		end]]
+		end
 end
 
 local function option(params)
@@ -31,6 +31,12 @@ local function option(params)
         end,
         set = function(info, value)
             local key = info.arg or info[#info]
+            -- hackfix to prevent DR/cooldown to be on the same side
+            if( key == "cooldownPos" and value == "LEFT" ) then
+              Gladdy.db.drCooldownPos = "RIGHT"
+            elseif ( key == "cooldownPos" and value == "RIGHT" ) then
+              Gladdy.db.drCooldownPos = "LEFT"
+            end
             Gladdy.dbi.profile[key] = value
             Gladdy:UpdateFrame()
         end,
