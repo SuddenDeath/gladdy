@@ -374,6 +374,7 @@ function Gladdy:JoinedArena()
 
     for i = 1, MAX_BATTLEFIELD_QUEUES do
         local status, _, _, _, _, teamSize = GetBattlefieldStatus(i)
+		if teamSize > 5 then teamSize = 3 end
         if (status == "active" and teamSize > 0) then
             self.curBracket = teamSize
             break
@@ -726,7 +727,7 @@ function Gladdy:Sync()
 
                 v._health = v.health
                 v._power = v.power
-                self:SendCommMessage("Gladdy", message, "PARTY", nil, "ALERT")
+                --self:SendCommMessage("Gladdy", message, "PARTY", nil, "ALERT")
             end
         end
     end
@@ -740,6 +741,7 @@ function Gladdy:OnCommReceived(prefix, message, dest, sender)
         local name, guid, class, classLoc, raceLoc, spec, health, healthMax, power, powerMax, powerType = strsplit(',', message)
         health, healthMax = tonumber(health), tonumber(healthMax)
         power, powerMax, powerType = tonumber(power), tonumber(powerMax), tonumber(powerType)
+		if name == UnitName("party1") or name == UnitName("party2") then return end
         local unit = self.guids[guid]
         if (not unit) then
             unit = self:EnemySpotted(name, guid, class, classLoc, raceLoc)
