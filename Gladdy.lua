@@ -40,6 +40,41 @@ local CombatLog_Object_IsA = CombatLog_Object_IsA
 local COMBATLOG_OBJECT_TARGET = COMBATLOG_OBJECT_TARGET
 local COMBATLOG_OBJECT_FOCUS = COMBATLOG_OBJECT_FOCUS
 
+local unitsToCheck = {
+  ["mouseovertarget"] = true,
+  ["mouseovertargettarget"] = true,
+  ["targettarget"] = true,
+  ["targettargettarget"] = true,
+  ["focustargettarget"] = true,
+  ["focustarget"] = true,
+  ["pettarget"] = true,
+  ["pettargettarget"] = true,
+  ["party1target"] = true,
+  ["party2target"] = true,
+  ["party3target"] = true,
+  ["party4target"] = true,
+  ["partypet1target"] = true,
+  ["partypet2target"] = true,
+  ["partypet3target"] = true,
+  ["partypet4target"] = true,
+  ["party1targettarget"] = true,
+  ["party2targettarget"] = true,
+  ["party3targettarget"] = true,
+  ["party4targettarget"] = true,
+  ["raid1target"] = true,
+  ["raid2target"] = true,
+  ["raid3target"] = true,
+  ["raid4target"] = true,
+  ["raidpet1target"] = true,
+  ["raidpet2target"] = true,
+  ["raidpet3target"] = true,
+  ["raidpet4target"] = true,
+  ["raid1targettarget"] = true,
+  ["raid2targettarget"] = true,
+  ["raid3targettarget"] = true,
+  ["raid4targettarget"] = true,
+}
+
 local MAJOR, MINOR = "Gladdy", 3
 local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L
@@ -369,6 +404,7 @@ function Gladdy:JoinedArena()
     self:RegisterEvent("UNIT_TARGET")
 
     self:ScheduleRepeatingTimer("Sync", 1, self)
+    self:ScheduleRepeatingTimer("UpdateUnits", 0.25, self)
     self:RegisterComm("Gladdy")
 
     for i = 1, MAX_BATTLEFIELD_QUEUES do
@@ -673,6 +709,19 @@ function Gladdy:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceG
 	end
 end
 
+function Gladdy:UpdateUnits()
+	for k,v in pairs(unitsToCheck) do
+		self:UpdateUnit(k);
+	end
+end
+
+function Gladdy:UpdateUnit(unit)
+   local guid = UnitGUID(unit)
+   if (guid and self:IsValid(unit)) then
+       self:UpdateGUID(guid, unit)
+   end
+end
+
 function Gladdy:PLAYER_TARGET_CHANGED()
     local guid = UnitGUID("target")
     if (guid and self:IsValid("target")) then
@@ -972,6 +1021,12 @@ function Gladdy:UpdateGUID(guid, uid)
     self:UNIT_AURA(nil, uid)
     self:UNIT_HEALTH(nil, uid)
     self:UNIT_POWER(nil, uid)
+    if select(1, UnitChannelInfo(uid)) then
+      self:UNIT_SPELLCAST_CHANNEL_START(nil, uid)
+    else
+      self:UNIT_SPELLCAST_START(nil, uid)
+    end
+    
 end
 
 function Gladdy:EnemySpotted(name, guid, class, classLoc, raceLoc)
