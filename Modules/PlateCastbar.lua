@@ -4,7 +4,7 @@ local WorldFrame = WorldFrame
 local select = select
 local pairs = pairs
 
-function log(...)
+local function log(...)
 	local text = ""
 	for i = 1, select("#", ...) do
 		text = text .. " " .. tostring(select(i, ...))
@@ -118,17 +118,6 @@ local unitsToCheck = {
 	["raid4targettarget"] = true,
 }
 
-local numChildren = -1
-local function HookFrames(...)
-	for ID = 1,select('#', ...) do
-		local frame = select(ID, ...)
-		local region = frame:GetRegions()
-		if ( not Table["Nameplates"][frame] and not frame:GetName() and region and region:GetObjectType() == "Texture" and region:GetTexture() == "Interface\\Tooltips\\Nameplate-Border" ) then
-			Table["Nameplates"][frame] = true
-		end
-	end
-end
-
 local Frame = CreateFrame("Frame")
 Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 local function Frame_RegisterEvents()
@@ -224,6 +213,148 @@ local function CastBars_Create()
 	end
 end
 
+local function keepCastbar(unit, elapsed)
+	local Texture = _G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]
+	local CastTime = _G[AddOn .. "_FontString_" .. unit .. "CastBar_CastTime"]
+	local CastBar = _G[AddOn .. "_Frame_" .. unit .. "CastBar"]
+	local Border = _G[AddOn .. "_Texture_" .. unit .. "CastBar_Border"]
+	local IconBorder = _G[AddOn .. "_Texture_" .. unit .. "CastBar_IconBorder"]
+	local SpellName = _G[AddOn .. "_FontString_" .. unit .. "CastBar_SpellName"]
+	local CastTime = _G[AddOn .. "_FontString_" .. unit .. "CastBar_CastTime"]
+	local Icon = _G[AddOn .. "_Texture_" .. unit .. "CastBar_Icon"]
+	local Width = _G[AddOn .. "_SavedVariables"]["CastBar"]["Width"]
+	
+	if Texture.castTime and Texture.castTime < Texture.maxCastTime then
+		local total = string.format("%.2f",Texture.maxCastTime)
+		local left = string.format("%.1f",total - Texture.castTime/Texture.maxCastTime*total)
+		Texture:SetWidth(Width*(Texture.castTime/Texture.maxCastTime))
+		if ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "LEFT" ) then
+			CastTime:SetText(left)
+		elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "TOTAL" ) then
+			CastTime:SetText(total)
+		elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "BOTH" ) then
+			CastTime:SetText(left .. " /" .. total)
+		end
+		-- in case nameplate with matching name isn't found, hide castbar
+		local found = false
+		for plate, _ in pairs(Table["Nameplates"]) do
+			local hpborder, cbborder, cbicon, overlay, oldname, level, bossicon, raidicon = plate:GetRegions()
+			if(oldname:GetText() == CastBar.name) then
+				found = true
+				CastBar:SetPoint("TOP",hpborder,"BOTTOM",6,-4.5)
+				CastBar:SetParent(plate)
+				CastBar:SetAlpha(1)
+				CastBar:Show()
+			end
+		end
+		if not found then
+--			log("hiding castbar because no nameplate was found")
+			CastBar:SetAlpha(0)
+			CastBar:Hide()
+		end
+		Texture.castTime = Texture.castTime + elapsed
+		
+	elseif Texture.castTime and Texture.castTime > Texture.maxCastTime then
+--		log("hiding castbar because cast finished")
+		CastBar:SetAlpha(0)
+		CastBar:Hide()
+		Texture.castTime = Texture.castTime + elapsed
+	end
+end
+
+local function keepCastbars(elapsed)
+	for k,v in pairs(unitsToCheck) do
+	-- double check that fallback function is only used if no info is pulled for unit
+		if(not UnitCastingInfo(k) or not UnitExists(k)) then
+			keepCastbar(k, elapsed)
+		end
+	end
+end
+
+local function createCastbars(elapsed)
+	-- decide whether castbar should be showing or not
+	
+	for frame, _ in pairs(Table["Nameplates"]) do
+		local hpborder, cbborder, cbicon, overlay, oldname, level, bossicon, raidicon = frame:GetRegions()
+
+		for k, v in pairs(unitsToCheck) do
+			local unit = k
+			local name = oldname:GetText()
+			local Texture = _G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]
+			local CastTime = _G[AddOn .. "_FontString_" .. unit .. "CastBar_CastTime"]
+			local CastBar = _G[AddOn .. "_Frame_" .. unit .. "CastBar"]
+			local Border = _G[AddOn .. "_Texture_" .. unit .. "CastBar_Border"]
+			local IconBorder = _G[AddOn .. "_Texture_" .. unit .. "CastBar_IconBorder"]
+			local SpellName = _G[AddOn .. "_FontString_" .. unit .. "CastBar_SpellName"]
+			local CastTime = _G[AddOn .. "_FontString_" .. unit .. "CastBar_CastTime"]
+			local Icon = _G[AddOn .. "_Texture_" .. unit .. "CastBar_Icon"]
+			local Width = _G[AddOn .. "_SavedVariables"]["CastBar"]["Width"]
+			
+			-- cast detected, display castbar 
+			if ( name == UnitName(unit) and UnitCastingInfo(unit) ) then
+				local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
+				if ( string.len(name) > 12 ) then name = (string.sub(name,1,12) .. ".. ") end
+				
+				
+				SpellName:SetText(name)
+				Icon:SetTexture(texture)
+				Border:SetTexture(0,0,0,1)
+				IconBorder:SetTexture(0,0,0,1)
+				Texture.castTime = (GetTime() - (startTime / 1000))
+				Texture.maxCastTime = (endTime - startTime) / 1000
+				Texture:SetWidth(Width*Texture.castTime/Texture.maxCastTime)
+				local point, relativeTo, relativePoint, xOfs, yOfs = Texture:GetPoint()
+				Texture:SetPoint(point, relativeTo, relativePoint, -Width/2+Width/2*Texture.castTime/Texture.maxCastTime, yOfs)
+				Texture:SetVertexColor(1, 0.5, 0)
+				
+				CastBar.name = UnitName(unit)
+				CastBar:SetAlpha(1)
+				CastBar:SetPoint("TOP",hpborder,"BOTTOM",6,-4.5)
+				CastBar:SetParent(frame)
+				CastBar:Show()
+				
+				local total = string.format("%.2f", Texture.maxCastTime)
+				local left = string.format("%.1f",total - Texture.castTime/Texture.maxCastTime*total)
+				if ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "LEFT" ) then
+					CastTime:SetText(left)
+				elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "TOTAL" ) then
+					CastTime:SetText(total)
+				elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "BOTH" ) then
+					CastTime:SetText(left .. " /" .. total)
+				end
+			-- hide castbar if unit stops casting
+			elseif ( name == UnitName(unit) and not UnitCastingInfo(unit)) then
+--				log("hiding castbar because unit stopped")
+				CastBar:SetAlpha(0)
+				CastBar:Hide()
+			end
+		end
+	end
+	--fallback function in case no casting information was found but we still want to display progress on the bar
+	keepCastbars(elapsed)
+end
+
+local numChildren = -1
+local function HookFrames(...)
+	for index = 1, select('#', ...) do
+		local frame = select(index, ...)
+		local region = frame:GetRegions()
+		if (  not frame:GetName() and region and region:GetObjectType() == "Texture" and region:GetTexture() == "Interface\\Tooltips\\Nameplate-Border" ) then
+			Table["Nameplates"][frame] = true
+		end
+	end
+end
+
+local function Update(self, elapsed)
+	if ( WorldFrame:GetNumChildren() ~= numChildren ) then
+		if Gladdy.db.npCastbars then
+			numChildren = WorldFrame:GetNumChildren()
+			HookFrames(WorldFrame:GetChildren())
+		end
+	end
+	createCastbars(elapsed)
+end
+
 Frame:SetScript("OnEvent",function(self,event,unitID,spell,...)
 	local timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags = ...
 	if ( event == "PLAYER_ENTERING_WORLD" ) then
@@ -231,186 +362,7 @@ Frame:SetScript("OnEvent",function(self,event,unitID,spell,...)
 			Frame_RegisterEvents()
 			CastBars_Create()
 			_G[AddOn .. "_PlayerEnteredWorld"] = true
+			Frame:SetScript("OnUpdate", Update)			
 		end
 	end
-
-
-	local function Spell_Interrupt()
-		if ( event == "COMBAT_LOG_EVENT_UNFILTERED" ) then
-			if ( eventType == "SPELL_INTERRUPT" ) then
-				local function Units_Check(unit)
-					if ( destGUID ==  UnitGUID(unit) ) then
-						_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]:SetVertexColor(1, 0, 0)
-						_G[AddOn .. "_" .. unit .. "_Casting"] = false
-						_G[AddOn .. "_" .. unit .. "_Channeling"] = false
-						_G[AddOn .. "_" .. unit .. "_Fading"] = true
-					end
-				end
-				for k,v in pairs (unitsToCheck) do
-					Units_Check(k)
-				end
-			end
-		end
-	end
-	Spell_Interrupt()
-end)
-
--- function needs massive cleanup and shouldn't be used in the first place
--- instead of using events, just query unitcastinginfo OnUpdate
-local function setCastbarInfo(event, unit)
-	if ( event == "UNIT_SPELLCAST_START" ) then
-		_G[AddOn .. "_" .. unit .. "_Fading"] = false
-		local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
-		if not name then return end
-		_G[AddOn .. "_" .. unit .. "_Casting"] = true
-		if ( string.len(name) > 12 ) then name = (string.sub(name,1,12) .. ".. ") end
-		_G[AddOn .. "_FontString_" .. unit .. "CastBar_SpellName"]:SetText(name)
-		_G[AddOn .. "_Frame_" .. unit .. "CastBar"]:SetAlpha(1)
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_Icon"]:SetTexture(texture)
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].value = (GetTime() - (startTime / 1000));
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].maxValue = (endTime - startTime) / 1000;
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]:SetVertexColor(1, 0.5, 0)
-	elseif ( event == "UNIT_SPELLCAST_CHANNEL_START" ) then
-		_G[AddOn .. "_" .. unit .. "_Fading"] = false
-		local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
-		if not name then return end
-		_G[AddOn .. "_" .. unit .. "_Channeling"] = true
-		if ( string.len(name) > 12 ) then name = (string.sub(name,1,12) .. ".. ") end
-		_G[AddOn .. "_FontString_" .. unit .. "CastBar_SpellName"]:SetText(name)
-		_G[AddOn .. "_Frame_" .. unit .. "CastBar"]:SetAlpha(1)
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_Icon"]:SetTexture(texture)
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].value = (GetTime() - (startTime / 1000));
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].maxValue = (endTime - startTime) / 1000;
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]:SetVertexColor(1, 0.5, 0)
-	elseif ( event == "UNIT_SPELLCAST_DELAYED" ) then
-		local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
-		if not name then return end
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].value = (GetTime() - (startTime / 1000));
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].maxValue = (endTime - startTime) / 1000;
-	elseif ( event == "UNIT_SPELLCAST_CHANNEL_UPDATE" ) then
-		local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
-		if not name then return end
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].value = (GetTime() - (startTime / 1000));
-		_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"].maxValue = (endTime - startTime) / 1000;
-	elseif ( event == "UNIT_SPELLCAST_FAILED" ) then
-		if ( _G[AddOn .. "_" .. unit .. "_Casting"] == true and unitID == unit ) then
-			_G[AddOn .. "_" .. unit .. "_Casting"] = false
-			_G[AddOn .. "_" .. unit .. "_Channeling"] = false
-		end
-	elseif ( event == "UNIT_SPELLCAST_SUCCEEDED" ) then
-		if ( _G[AddOn .. "_" .. unit .. "_Casting"] and unitID == unit ) then
-			_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]:SetVertexColor(0, 1, 0)
-			_G[AddOn .. "_" .. unit .. "_Fading"] = true
-			_G[AddOn .. "_" .. unit .. "_Casting"] = false
-		end
-	end
-end
-
-Frame:SetScript("OnUpdate", function(self, elapsed)
-	-- throw nameplates in table
-	if ( WorldFrame:GetNumChildren() ~= numChildren ) then
-		numChildren = WorldFrame:GetNumChildren()
-		if Gladdy.db.npCastbars then
-			HookFrames(WorldFrame:GetChildren())
-		end
-	end
-
-	-- decide whether castbar should be showing or not
-	for frame in pairs(Table["Nameplates"]) do
-		local hpborder, cbborder, cbicon, overlay, oldname, level, bossicon, raidicon = frame:GetRegions()
-		local name = oldname:GetText()
-		-- hide all castbars, then only shows those of players whose nameplates were found
-		for k, v in pairs(unitsToCheck) do
-			--_G[AddOn .. "_Frame_" .. k .. "CastBar"]:Hide()
-			if( name == UnitName(k) and UnitCastingInfo(k) ) then
-				setCastbarInfo("UNIT_SPELLCAST_START", k)
-				_G[AddOn .. "_Frame_" .. k .. "CastBar"]:SetPoint("TOP",hpborder,"BOTTOM",6,-4.5)
-				_G[AddOn .. "_Frame_" .. k .. "CastBar"]:SetParent(frame)
-				_G[AddOn .. "_Frame_" .. k .. "CastBar"]:Show()
-			end
-		end
-	end
-
-	--set info to castbars
-	local function CastBars_Update()
-		local function Casting_Update(unit)
-			local Casting = _G[AddOn .. "_" .. unit .. "_Casting"]
-			local Channeling = _G[AddOn .. "_" .. unit .. "_Channeling"]
-			local CastBar = _G[AddOn .. "_Frame_" .. unit .. "CastBar"]
-			local Texture = _G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]
-			local Border = _G[AddOn .. "_Texture_" .. unit .. "CastBar_Border"]
-			local IconBorder = _G[AddOn .. "_Texture_" .. unit .. "CastBar_IconBorder"]
-			local Fading =  _G[AddOn .. "_" .. unit .. "_Fading"]
-			local CastTime = _G[AddOn .. "_FontString_" .. unit .. "CastBar_CastTime"]
-			local Width = _G[AddOn .. "_SavedVariables"]["CastBar"]["Width"]
-			local Enabled = true
-
-
-			if ( not Fading or not _G[AddOn .. "_" .. unit .. "CastBarAlpha"] ) then
-				_G[AddOn .. "_" .. unit .. "CastBarAlpha"] = 0
-			end
-			if ( Enabled ) then
-				if ( Channeling and not UnitChannelInfo(unit) ) then
-					Texture:SetVertexColor(0, 1, 0)
-					_G[AddOn .. "_" .. unit .. "_Fading"] = true
-					_G[AddOn .. "_" .. unit .. "_Channeling"] = false
-				elseif ( Casting and not Fading and UnitCastingInfo(unit) ) then
-					local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
-					if ( endTime ) then
-						local total = string.format("%.2f",(endTime-startTime)/1000)
-						local left = string.format("%.1f",total - Texture.value/Texture.maxValue*total)
-						if ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "LEFT" ) then
-							CastTime:SetText(left)
-						elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "TOTAL" ) then
-							CastTime:SetText(total)
-						elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "BOTH" ) then
-							CastTime:SetText(left .. " /" .. total)
-						end
-					end
-					Border:SetTexture(0,0,0,1)
-					IconBorder:SetTexture(0,0,0,1)
-					Texture.value = Texture.value + elapsed
-					if ( Texture.value >= Texture.maxValue ) then return end
-					Texture:SetWidth(Width*Texture.value/Texture.maxValue)
-					point, relativeTo, relativePoint, xOfs, yOfs = Texture:GetPoint()
-					Texture:SetPoint(point, relativeTo, relativePoint, -Width/2+Width/2*Texture.value/Texture.maxValue, yOfs)
-				elseif ( Channeling and not Fading ) then
-					local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
-					if ( endTime ) then
-						local total = string.format("%.2f",(endTime-startTime)/1000)
-						local left = string.format("%.1f",total - Texture.value/Texture.maxValue*total)
-						if ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "LEFT" ) then
-							CastTime:SetText(left)
-						elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "TOTAL" ) then
-							CastTime:SetText(total)
-						elseif ( _G[AddOn .. "_SavedVariables"]["Timer"]["Format"] == "BOTH" ) then
-							CastTime:SetText(left .. " /" .. total)
-						end
-					end
-					Border:SetTexture(0,0,0,1)
-					IconBorder:SetTexture(0,0,0,1)
-					Texture.value = Texture.value + elapsed
-					if ( Texture.value >= Texture.maxValue ) then return end
-					Texture:SetWidth(Width*(Texture.maxValue-Texture.value)/Texture.maxValue)
-					point, relativeTo, relativePoint, xOfs, yOfs = Texture:GetPoint()
-					Texture:SetPoint(point, relativeTo, relativePoint, -Width/2*Texture.value/Texture.maxValue, yOfs)
-				elseif ( Fading ) then
-					if ( Channeling or Casting or _G[AddOn .. "_" .. unit .. "CastBarAlpha"] >= 0.5 ) then
-						_G[AddOn .. "_" .. unit .. "CastBarAlpha"] = 0
-						_G[AddOn .. "_" .. unit .. "_Fading"] = false
-						return
-					end
-					_G[AddOn .. "_" .. unit .. "CastBarAlpha"] = _G[AddOn .. "_" .. unit .. "CastBarAlpha"] + elapsed
-					CastBar:SetAlpha(1-(2*_G[AddOn .. "_" .. unit .. "CastBarAlpha"]))
-				elseif ( CastBar ) then
-					CastBar:SetAlpha(0)
-				end
-			end
-		end
-
-		for k,v in pairs(unitsToCheck) do
-			Casting_Update(k)
-		end
-	end
-	CastBars_Update()
 end)
