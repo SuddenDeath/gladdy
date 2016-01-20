@@ -8,6 +8,7 @@ local L = Gladdy.L
 local Nameplates = Gladdy:NewModule("Nameplates", nil, {
     npTotems = true,
     npCastbars = true,
+    npCastbarGuess = true,
 })
 LibStub("AceHook-3.0"):Embed(Nameplates)
 LibStub("AceTimer-3.0"):Embed(Nameplates)
@@ -153,6 +154,11 @@ function Nameplates:GetOptions()
             type = "toggle",
             name = L["Castbars on/off"],
             desc = L["Turns castbars of nameplates on or off. (Requires reload)"],
+        }),
+        npCastbarGuess = option({
+            type = "toggle",
+            name = L["Castbars guesses on/off"],
+            desc = L["If disabled, castbars will disappear as soon as you lose your 'unit', e.g. mouseover or change your target"],
         }),
     }
 end
