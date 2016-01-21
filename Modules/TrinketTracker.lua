@@ -812,12 +812,6 @@ function TrinketTracker:TrinketUsed(destGUID, destName, spellName)
 	SendAddonMessage("GladdyTrinketUsed", destGUID)	
 end
 
-function TrinketTracker:Test()
-	for i=1,15 do
-		TrinketTracker:TrinketUsed("someID", "name"..i)
-	end
-end
-
 function TrinketTracker:CheckDispel(destGUID, spellTimer, searchName)
 	for i=0, 10 do
 		local spellTable = self.guids[destGUID][i]
