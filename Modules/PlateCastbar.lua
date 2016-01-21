@@ -269,7 +269,7 @@ end
 local function keepCastbars(elapsed)
 	for k,v in pairs(unitsToCheck) do
 	-- double check that fallback function is only used if no info is pulled for unit
-		if(not UnitCastingInfo(k) or not UnitExists(k)) then
+		if(not UnitCastingInfo(k)) then
 			keepCastbar(k, elapsed)
 		end
 	end
@@ -298,7 +298,6 @@ local function createCastbars(elapsed)
 			if ( name == UnitName(unit) and UnitCastingInfo(unit) ) then
 				local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit);
 				if ( string.len(name) > 12 ) then name = (string.sub(name,1,12) .. ".. ") end
-				
 				
 				SpellName:SetText(name)
 				Icon:SetTexture(texture)
