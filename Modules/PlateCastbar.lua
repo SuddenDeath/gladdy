@@ -139,6 +139,7 @@ local function UnitCastBar_Create(unit)
 	CastBar:SetWidth(_G[AddOn .. "_SavedVariables"]["CastBar"]["Width"]);
 	CastBar:SetHeight(11);
 	CastBar:SetPoint("CENTER");
+	CastBar:Hide();
 
 	_G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"] = CastBar:CreateTexture(nil,"ARTWORK");
 	local Texture = _G[AddOn .. "_Texture_" .. unit .. "CastBar_CastBar"]
