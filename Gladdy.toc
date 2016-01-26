@@ -27,3 +27,4 @@ Modules\Powerbar.lua
 Modules\Trinket.lua
 Modules\Cooldowns.lua
 Modules\TrinketTracker.lua
+Modules\ArenaIdentify.lua
