@@ -403,7 +403,6 @@ function Gladdy:JoinedArena()
     self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
     self:RegisterEvent("UNIT_TARGET")
 
-    self:ScheduleRepeatingTimer("Sync", 1, self)
     self:ScheduleRepeatingTimer("UpdateUnits", 0.25, self)
     self:RegisterComm("Gladdy")
 
@@ -767,23 +766,6 @@ function Gladdy:UNIT_TARGET(event, uid)
     end
 end
 
-function Gladdy:Sync()
-    for k, v in pairs(self.buttons) do
-        if (v.guid ~= "") then
-            if (not v._health or not v._power or v.health ~= v._health or v.power ~= v._power) then
-                local message = ("%s,%s,%s,%s,%s,%s,%d,%d,%d,%d,%d"):format(
-                    v.name, v.guid, v.class, v.classLoc, v.raceLoc, v.spec,
-                    v.health, v.healthMax, v.power, v.powerMax, v.powerType
-                )
-
-                v._health = v.health
-                v._power = v.power
-                --self:SendCommMessage("Gladdy", message, "PARTY", nil, "ALERT")
-            end
-        end
-    end
-end
-
 function Gladdy:OnCommReceived(prefix, message, dest, sender)
 	-- hack, to avoid faulty messages from ArenaIdentify (not server sent)
 	if dest ~= "WHISPER" then return end
@@ -913,7 +895,7 @@ function Gladdy:DetectSpec(unit, spec)
                icon.texture:SetTexture(self.spellTextures[k])
                icon.spellId = k
 			   button.spellCooldownFrame["icon" .. button.lastCooldownSpell] = icon
-               button.lastCooldownSpell = button.lastCooldownSpell + 1            
+               button.lastCooldownSpell = button.lastCooldownSpell + 1
             end
          end
       --end
@@ -956,6 +938,54 @@ function Gladdy:IsValid(uid)
     end
 end
 
+function Gladdy:UpdateCooldowns(button)
+	local class = button.class
+	local race = button.race
+	
+	if (self.db.cooldown) then         
+    	for k,v in pairs(self.cooldownSpells[class]) do
+ 	       if (type(v) ~= "table" or (type(v) == "table" and v.spec == nil and v.notSpec == nil)) then
+           -- see if we have shared cooldowns without a cooldown defined
+           -- e.g. hunter traps have shared cooldowns, so only display one trap instead all of them
+           local sharedCD = false
+           if (type(v) == "table" and v.sharedCD ~= nil and v.sharedCD.cd == nil) then
+    	       for spellId, _ in pairs(v.sharedCD) do
+        	       for i=1, button.lastCooldownSpell do
+            	       local icon = button.spellCooldownFrame["icon" .. i]
+                       if (icon.spellId == spellId) then 
+                	       sharedCD = true 
+                       end
+                    end
+               	end
+           	end
+                  
+          	if (not sharedCD) then                              
+	            local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
+	            icon:Show()
+	            icon.spellId = k
+	            icon.texture:SetTexture(self.spellTextures[k])
+	            button.spellCooldownFrame["icon" .. button.lastCooldownSpell] = icon
+	            button.lastCooldownSpell = button.lastCooldownSpell + 1  
+          	end          
+         end
+	end
+	----
+	-- RACE FUNCTIONALITY
+	----
+	 
+	 for k,v in pairs(self.cooldownSpells[race]) do
+	 	if (type(v) ~= "table" or (type(v) == "table" and v.spec == nil and v.notSpec == nil)) then
+	        local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
+	        icon:Show()
+	        icon.spellId = k
+	        icon.texture:SetTexture(self.spellTextures[k])
+			button.spellCooldownFrame["icon" .. button.lastCooldownSpell] = icon
+			button.lastCooldownSpell = button.lastCooldownSpell + 1  
+	 	end	
+	 end
+	end	
+end
+
 function Gladdy:UpdateGUID(guid, uid)
     local unit = self.guids[guid]
     if (not unit) then
@@ -965,69 +995,19 @@ function Gladdy:UpdateGUID(guid, uid)
         unit = self:EnemySpotted(name, guid, class, classLoc, raceLoc)
     end
 	if unit then
-	local button = self.buttons[unit]
-	local classLoc, class = UnitClass(uid)
-	local raceLoc, race = UnitRace(uid)
-	-- update cooldown tracker
-	if button then
-		button.race = race
-		button.lastCooldownSpell = 1
-		if (self.db.cooldown) then         
-         for k,v in pairs(self.cooldownSpells[class]) do
-            --if (self.db.cooldownList[k] ~= false and self.db.cooldownList[class] ~= false) then         
-               if (type(v) ~= "table" or (type(v) == "table" and v.spec == nil and v.notSpec == nil)) then
-                  -- see if we have shared cooldowns without a cooldown defined
-                  -- e.g. hunter traps have shared cooldowns, so only display one trap instead all of them
-                  local sharedCD = false
-                  if (type(v) == "table" and v.sharedCD ~= nil and v.sharedCD.cd == nil) then
-                     for spellId, _ in pairs(v.sharedCD) do
-                        for i=1, button.lastCooldownSpell do
-                           local icon = button.spellCooldownFrame["icon" .. i]
-                           if (icon.spellId == spellId) then 
-                              sharedCD = true 
-                           end
-                        end
-                     end
-                  end
-                  
-                  if (not sharedCD) then                              
-                     local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
-                     icon:Show()
-                     icon.spellId = k
-                     icon.texture:SetTexture(self.spellTextures[k])
-                     button.spellCooldownFrame["icon" .. button.lastCooldownSpell] = icon
-                     button.lastCooldownSpell = button.lastCooldownSpell + 1  
-                  end          
-               end
-           --end
-         end
-		 ----
-		 -- RACE FUNCTIONALITY
-		 ----
-		 
-		 for k,v in pairs(self.cooldownSpells[race]) do
-		 if (type(v) ~= "table" or (type(v) == "table" and v.spec == nil and v.notSpec == nil)) then
-			if (not sharedCD) then                              
-                local icon = button.spellCooldownFrame["icon" .. button.lastCooldownSpell]
-                icon:Show()
-                icon.spellId = k
-                icon.texture:SetTexture(self.spellTextures[k])
-				button.spellCooldownFrame["icon" .. button.lastCooldownSpell] = icon
-				button.lastCooldownSpell = button.lastCooldownSpell + 1  
-            end
-		 end	
-		 end
+		local button = self.buttons[unit]
+		local classLoc, class = UnitClass(uid)
+		local raceLoc, race = UnitRace(uid)
+		-- update cooldown tracker
+		if button then
+			button.race = race
+			button.lastCooldownSpell = 1
+			self:UpdateCooldowns(button)
 		end
-	end	
 	end
     self:UNIT_AURA(nil, uid)
     self:UNIT_HEALTH(nil, uid)
     self:UNIT_POWER(nil, uid)
---    if select(1, UnitChannelInfo(uid)) then
---      self:UNIT_SPELLCAST_CHANNEL_START(nil, uid)
---    else
---      self:UNIT_SPELLCAST_START(nil, uid)
---    end
     
 end
 

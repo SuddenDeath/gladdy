@@ -58,12 +58,13 @@ function ArenaIdentify:Print(msg)
 end
 
 function ArenaIdentify:SendGladdyMessage(msg)
-	local name, guid, class, classLoc, raceLoc, spec, health, healthMax, power, powerMax, powerType = string.split(",", msg)
+	local name, guid, class, classLoc, raceLoc, race, health, healthMax, power, powerMax, powerType = string.split(",", msg)
     if (Gladdy.guids[guid]) then return end
 	local unit = Gladdy:EnemySpotted(name, guid, class, classLoc, raceLoc)
 	
     local button = Gladdy.buttons[unit]
     if (not button) then return end
+    button.race = race
     button.lastCooldownSpell = 1
 	button.health = health
     button.healthMax = healthMax
@@ -72,6 +73,7 @@ function ArenaIdentify:SendGladdyMessage(msg)
     button.powerMax = powerMax
     button.powerType = powerType
 	Gladdy:SendMessage("UNIT_POWER", unit, tonumber(power), tonumber(powerMax), tonumber(powerType))
+	Gladdy:UpdateCooldowns(button)
 end
 
 function ArenaIdentify:ScanUnits()
@@ -118,8 +120,8 @@ function ArenaIdentify:ScanUnit(unit)
 		local name, _ = UnitName(unit)
 		local classLoc, class = UnitClass(unit)
 		local powerType = UnitPowerType(unit) or 0
-		local raceLoc, _ = UnitRace(unit)
-		Gladdy.db.scanTable[GetRealmName()][guid] = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, "", "100", "100", "100", "100", powerType)
+		local raceLoc, race = UnitRace(unit)
+		Gladdy.db.scanTable[GetRealmName()][guid] = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, race, "100", "100", "100", "100", powerType)
 		Gladdy.db.guidsByName[GetRealmName()][name] = guid
 		alreadySaved[guid] = true
 	end
@@ -201,19 +203,19 @@ function ArenaIdentify:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, 
 		if( not alreadyFound[sourceGUID] and instanceType == "arena" and self:GuidInParty(sourceGUID)==0) then
 				local data = Gladdy.db.scanTable[GetRealmName()][sourceGUID]
 				if data ~= nil then
-					local name, guid, class, classLoc, raceLoc, spec, health, healthMax, power, powerMax, powerType = string.split(",", data)
+					local name, guid, class, classLoc, raceLoc, race, health, healthMax, power, powerMax, powerType = string.split(",", data)
 					alreadyFound[sourceGUID] = true 
 					--v.name, v.guid, v.class, v.classLoc, v.raceLoc, v.spec, v.health, v.healthMax, v.power, v.powerMax, v.powerType
-					local msg = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, "", health, healthMax, power, powerMax, powerType)
+					local msg = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, race, health, healthMax, power, powerMax, powerType)
 					self:SendGladdyMessage(msg)
 				end		
 		elseif( not alreadyFound[destGUID] and instanceType == "arena" and self:GuidInParty(destGUID)==0) then
 				local data = Gladdy.db.scanTable[GetRealmName()][destGUID]
 				if data ~= nil then
-					local name, guid, class, classLoc, raceLoc, spec, health, healthMax, power, powerMax, powerType = string.split(",", data)
+					local name, guid, class, classLoc, raceLoc, race, health, healthMax, power, powerMax, powerType = string.split(",", data)
 					alreadyFound[destGUID] = true 
 					--v.name, v.guid, v.class, v.classLoc, v.raceLoc, v.spec, v.health, v.healthMax, v.power, v.powerMax, v.powerType
-					local msg = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, "", health, healthMax, power, powerMax, powerType)
+					local msg = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, race, health, healthMax, power, powerMax, powerType)
 					self:SendGladdyMessage(msg)
 				end	
 		end
@@ -231,7 +233,7 @@ function ArenaIdentify:Scoreboard()
 			local guid = Gladdy.db.guidsByName[GetRealmName()][name]
 			if not alreadyFound[guid] and instanceType == "arena" and self:GuidInParty(guid)==0 and UnitGUID("player") ~= guid then
 				alreadyFound[guid] = true
-				local msg = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", name, guid, class, classLoc, raceLoc, "", "100", "100", "100", "100", "0")
+				local msg = Gladdy.db.guidsByName[GetRealmName()][guid]
 				self:SendGladdyMessage(msg)
 			end
 		end
