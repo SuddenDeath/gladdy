@@ -64,7 +64,7 @@ function ArenaIdentify:SendGladdyMessage(msg)
 	
     local button = Gladdy.buttons[unit]
     if (not button) then return end
-    button.lastCooldownSpell = 0
+    button.lastCooldownSpell = 1
 	button.health = health
     button.healthMax = healthMax
 	Gladdy:SendMessage("UNIT_HEALTH", unit, tonumber(health), tonumber(healthMax))
