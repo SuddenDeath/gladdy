@@ -554,8 +554,6 @@ function TrinketTracker:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		elseif guid == UnitGUID("party4") then		
 			self:UNIT_AURA("party4")			
 		end
-	elseif prefix == "GladdyTrinketUsed" and sender ~= UnitName("player") then
-		self:TrinketUsed(message, nil, nil)
 	end	
 end
 
