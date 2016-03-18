@@ -181,7 +181,7 @@ function ArenaIdentify:ZONE_CHANGED_NEW_AREA()
 			self.frame:Hide()
 			self.frame:SetScript("OnUpdate", function(self, elapsed)
 				timeElapsed = timeElapsed + elapsed
-				if( timeElapsed >= 1 ) then
+				if( timeElapsed >= 0.1 ) then
 					if( InCombatLockdown() ) then
 						self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 						self:Hide()
@@ -195,7 +195,7 @@ function ArenaIdentify:ZONE_CHANGED_NEW_AREA()
 			end)
 		end
 		
-		timeElapsed = 1
+		timeElapsed = 0.1
 		self.frame:Show()
 end
 
