@@ -1,23 +1,23 @@
 local abilityIDs = {
 	-- none, these can ONLY be broken by trinket
-	[33786] = "none", -- Cyclone 
+	[33786] = "none", -- Cyclone
 	[710] = "none", -- Banish
 	-- physicalStun all stuns which don't break on damage
-    [1833] = "physicalStun", -- Cheap Shot
-    [8643] = "physicalStun", -- Kidney Shot
+	[1833] = "physicalStun", -- Cheap Shot
+	[8643] = "physicalStun", -- Kidney Shot
 	[5211] = "physicalStun", -- Bash
 	[25274] = "physicalStun", -- Intercept Stun
 	[9005] = "physicalStun", -- Pounce stun
 	[5530] = "physicalStun", -- Mace Stun Effect
 	[34510] = "physicalStun", -- Deep Thunder/Storm Herald stun
 	[19410] = "physicalStun", -- Improved Concussive Shot
-	[12809] = "physicalStun", -- Concussion Blow	
+	[12809] = "physicalStun", -- Concussion Blow
 	[19577] = "physicalStun", -- Intimidation
 	[20549] = "physicalStun", -- War Stomp
 	-- all physical effects which ONLY break on damage
-    [1776] = "physicalPolyZerker", -- Gouge
-    [2094] = "physicalPoly", -- Blind
-    [6770] = "physicalPolyZerkerOverride", -- Sap
+	[1776] = "physicalPolyZerker", -- Gouge
+	[2094] = "physicalPoly", -- Blind
+	[6770] = "physicalPolyZerkerOverride", -- Sap
 	[19503] = "physicalPoly", -- Scatter Shot
 	-- all effects which can only be broken by Blessing of Freedom, Blessing of Protection or Escape Artist
 	[19229] = "physicalRoot", -- Improved Wing Clip
@@ -27,20 +27,20 @@ local abilityIDs = {
 	-- all physical effects which only break from DIRECT damage
 	[22570] = "physicalPolyPeriodic", -- Maim (4p 5s)
 	-- all magic effects which only break from DIRECT damage
-    [33043] = "magicPolyPeriodic", -- Dragon's Breath
+	[33043] = "magicPolyPeriodic", -- Dragon's Breath
 	-- all magic effects which break on damage
 	[118] = "magicPoly", -- Poly
 	[28272] = "magicPoly", -- Poly Pig
 	[28271] = "magicPoly", -- Poly Turtle
-	[14309] = "magicPoly", -- Freezing Trap Effect 
+	[14309] = "magicPoly", -- Freezing Trap Effect
 	[20066] = "magicPoly", -- Repentance
 	-- all effects which can be dispelled but also break after ~1500 damage taken
-    [26989] = "magicRootsOverride", -- Entangling Roots
+	[26989] = "magicRootsOverride", -- Entangling Roots
 	[33395] = "magicRoots", -- Freeze (Watelemental)
 	[122] = "magicRoots", -- Frost nova
 	[12494] = "magicRoots", -- Frostbite
 	-- all magic effects that break on damage but also break on tremor
-    [2637] = "magicPolyTremor", -- Hibernate
+	[2637] = "magicPolyTremor", -- Hibernate
 	-- all magic effects that break on damage, tremor and can be interrupt (channeling)
 	[10912] = "magicPolyTremorInterrupt", -- Mind Control
 	-- all poison effects that break on damage but also break on tremor / stoneform
@@ -50,16 +50,16 @@ local abilityIDs = {
 	[5484] = "magicFearTremor", -- Howl of Terror
 	[14326] = "magicFearTremor", -- Scare Beast
 	[6215] = "magicFearTremorOverride", -- Fear
-    -- all effects which can ONLY be dispelled
-    [853] = "magic", -- Hammer of Justice
+	-- all effects which can ONLY be dispelled
+	[853] = "magic", -- Hammer of Justice
 	[27223] = "magic", -- Death Coil
-    [19185] = "magic", -- Entrapment	
+	[19185] = "magic", -- Entrapment
 }
 
 local categories = {
 	["none"] = {
 		-- these effects CANNOT be removed by anything other than trinket
-		["override"] = 1, 
+		["override"] = 1,
 	},
 	-- CS/KS
 	["physicalStun"] = {
@@ -235,16 +235,16 @@ local categories = {
 		[1020] = 1, -- Divine Shield
 		[45438] = 1, -- Ice Block
 		[34471] = 1, -- The Beast Within
-		["dispel"] = 1, 
+		["dispel"] = 1,
 	},
 }
 
 local function map_length(t)
-    local c = 0
-    for k,v in pairs(t) do
-         c = c+1
-    end
-    return c
+	local c = 0
+	for k,v in pairs(t) do
+		c = c+1
+	end
+	return c
 end
 
 local damageEvents = {
@@ -313,13 +313,13 @@ local shapeshiftIDs = {
 }
 
 local overrideIDs = {
-	[33786] = 1, -- Cyclone 
+	[33786] = 1, -- Cyclone
 	[710] = 1, -- Banish
 	[6770] = 1, -- Sap
 	[118] = 1, -- Poly
 	[28272] = 1, -- Poly Pig
 	[28271] = 1, -- Poly Turtle
-	[14309] = 1, -- Freezing Trap Effect 
+	[14309] = 1, -- Freezing Trap Effect
 	[26989] = 1, -- Entangling Roots
 	[2637] = 1, -- Hibernate
 	[6215] = 1, -- Fear
@@ -359,18 +359,18 @@ local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
 
 local TrinketTracker = Gladdy:NewModule("TrinketTracker", nil, {
-    ttDebug = false,
-    timeOutBuffer = 0.5, -- time before the CC naturally ends that trinket will still be tracked
-    bigDamageValue = 800, -- how much damage needs to be taken during root/fear before we can assume it wasn't trinketed
+	ttDebug = false,
+	timeOutBuffer = 0.5, -- time before the CC naturally ends that trinket will still be tracked
+	bigDamageValue = 800, -- how much damage needs to be taken during root/fear before we can assume it wasn't trinketed
 })
 LibStub("AceComm-3.0"):Embed(TrinketTracker)
 
 local function log(msg)
-  if Gladdy.db.ttDebug == true then
-    DEFAULT_CHAT_FRAME:AddMessage(msg)
-  elseif Gladdy.db.ttDebug == false then
-    return
-  end
+	if Gladdy.db.ttDebug == true then
+		DEFAULT_CHAT_FRAME:AddMessage(msg)
+	elseif Gladdy.db.ttDebug == false then
+		return
+	end
 end
 
 function TrinketTracker:Initialise()
@@ -385,52 +385,52 @@ TrinketTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
 TrinketTracker:RegisterEvent("PLAYER_LOGIN")
 
 local function option(params)
-    local defaults = {
-        get = function(info)
-            local key = info.arg or info[#info]
-            return Gladdy.dbi.profile[key]
-        end,
-        set = function(info, value)
-            local key = info.arg or info[#info]
-            Gladdy.dbi.profile[key] = value
-            Gladdy:UpdateFrame()
-        end,
-    }
+	local defaults = {
+		get = function(info)
+			local key = info.arg or info[#info]
+			return Gladdy.dbi.profile[key]
+		end,
+		set = function(info, value)
+			local key = info.arg or info[#info]
+			Gladdy.dbi.profile[key] = value
+			Gladdy:UpdateFrame()
+		end,
+	}
 
-    for k, v in pairs(params) do
-        defaults[k] = v
-    end
+	for k, v in pairs(params) do
+		defaults[k] = v
+	end
 
-    return defaults
+	return defaults
 end
 
 function TrinketTracker:GetOptions()
-    return {
-        ttDebug = option({
-            type = "toggle",
-            name = L["Debug logs for what broke CC"],
-            desc = L["Enable/disable chat logging showing what broke a specific CC."],
-            order = 2,
-        }),
-        timeOutBuffer = option({
-            type = "range",
-            name = L["Minimum CC duration for TrinketTracker to work"],
-            desc = L["Below this duration left on the CC, it will assume that the player didn't trinket because duration guesses were incorrect."],
-            order = 3,
-            min = 0.1,
-            max = 1,
-            step = 0.1,
-        }),
-        bigDamageValue = option({
-            type = "range",
-            name = L["Minimum damage done for fear/roots to break from"],
-            desc = L["Set the minimum damage done to a player before the addon will assume that damage broke CC like fear or roots."],
-            order = 4,
-            min = 100,
-            max = 1500,
-            step = 100,
-        }),
-    }
+	return {
+		ttDebug = option({
+			type = "toggle",
+			name = L["Debug logs for what broke CC"],
+			desc = L["Enable/disable chat logging showing what broke a specific CC."],
+			order = 2,
+		}),
+		timeOutBuffer = option({
+			type = "range",
+			name = L["Minimum CC duration for TrinketTracker to work"],
+			desc = L["Below this duration left on the CC, it will assume that the player didn't trinket because duration guesses were incorrect."],
+			order = 3,
+			min = 0.1,
+			max = 1,
+			step = 0.1,
+		}),
+		bigDamageValue = option({
+			type = "range",
+			name = L["Minimum damage done for fear/roots to break from"],
+			desc = L["Set the minimum damage done to a player before the addon will assume that damage broke CC like fear or roots."],
+			order = 4,
+			min = 100,
+			max = 1500,
+			step = 100,
+		}),
+	}
 end
 
 function TrinketTracker:StartTimer(destGUID, spellName, timeLeft, duration)
@@ -441,25 +441,25 @@ function TrinketTracker:StartTimer(destGUID, spellName, timeLeft, duration)
 		if type(self.guids[destGUID]) ~= "table" then
 			self.guids[destGUID] = { }
 		end
-		
+
 		--self.guids[destGUID][spellName] = CreateFrame("Frame", spellName .. "_" .. destGUID)
 		self.guids[destGUID][spellName] = {}
 		-- use ACTUAL GetTime() at which the spell started, regardless of when this function is called
 		self.guids[destGUID][spellName].startTime = GetTime()-(duration-timeLeft)
 		self.guids[destGUID][spellName].timeLeft = timeLeft
-		
+
 		--log("Found timer for spell: "..spellName.." with time left: "..timeLeft)
 	end
 end
 
 function TrinketTracker:UpdateTimer(destGUID, spellName, timeLeft, duration)
 	if self.guids[destGUID] and self.guids[destGUID][spellName] and self.abilities[spellName] then
-	
+
 		-- update "library"
 		--if self.guids[destGUID][spellName].startTime <
 		self.guids[destGUID][spellName].startTime = GetTime()-(duration-timeLeft)
 		self.guids[destGUID][spellName].timeLeft = timeLeft
-		
+
 		--log("Found timer for spell: "..spellName.." with time left: "..timeLeft)
 	end
 end
@@ -490,37 +490,36 @@ function TrinketTracker:PLAYER_ENTERING_WORLD(...)
 			end
 		end
 	end
-	
+
 	self.guids = {}
 	self.abilities = {}
 	self.override = {}
 	self.tremor = false
-	
+
 	for k,v in pairs(abilityIDs) do
 		self.abilities[GetSpellInfo(k)]=v;
 	end
-	
+
 	for k,v in pairs(overrideIDs) do
 		self.override[GetSpellInfo(k)]=v;
 	end
-	
+
 	for i=1,5 do
 		if self.cdFrames[i] then
 			self.cdFrames[i]:SetCooldown(GetTime(), 0)
 		end
 	end
-	
+
 	for k,v in pairs(self.trinketFrames) do
 		v:SetCooldown(GetTime(), 0)
 		v:Hide()
 	end
-	
+
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("UNIT_AURA")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
-	self:RegisterEvent("CHAT_MSG_ADDON")
-	
+
 end
 
 function TrinketTracker:UpdateTremor(...)
@@ -535,26 +534,7 @@ function TrinketTracker:UpdateTremor(...)
 		self.tremor = true
 		local milliseconds = tonumber(strsub(tostring(GetTime()), -3))/1000
 		self.tremorTime = GetTime()
-	end	
-end
-
-function TrinketTracker:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix == "BuffLib" and sender ~= UnitName("player") and not RealmNames[GetRealmName()] then
-		local guid, name, duration, timeLeft = strsplit(",", message)
-		if guid == UnitGUID("target") then
-			self:UNIT_AURA("target")
-		elseif guid == UnitGUID("focus") then	
-			self:UNIT_AURA("focus")
-		elseif guid == UnitGUID("party1") then	
-			self:UNIT_AURA("party1")
-		elseif guid == UnitGUID("party2") then	
-			self:UNIT_AURA("party2")
-		elseif guid == UnitGUID("party3") then	
-			self:UNIT_AURA("party3")
-		elseif guid == UnitGUID("party4") then		
-			self:UNIT_AURA("party4")			
-		end
-	end	
+	end
 end
 
 function TrinketTracker:UNIT_AURA(unitID, ...)
@@ -571,9 +551,9 @@ end
 function TrinketTracker:CheckTrinket(category, destGUID, destName, spellTimer, spellName)
 	if not category then return end
 	local damage, periodicDamage, bigDamage, iceblock, wotf, bubble, escapeartist,
-	stoneform, freedom, protection, dispel, tremor, zerker, sprint, blink, blazspeed,
-	cloak, bm, deathwish, interrupt, shapeshift, override
-	
+		stoneform, freedom, protection, dispel, tremor, zerker, sprint, blink, blazspeed,
+		cloak, bm, deathwish, interrupt, shapeshift, override
+
 	--[[if category["none"] then
 		self:TrinketUsed(destGUID, destName, spellName)
 		return
@@ -618,67 +598,67 @@ function TrinketTracker:CheckTrinket(category, destGUID, destName, spellTimer, s
 		stoneform = self:CheckImmunity(destGUID, spellTimer, 20594)
 		if stoneform == true then
 			log(spellName.." on "..destName.." broke with stoneform")
-		end	
+		end
 	end
 	if category[20589] then
 		escapeartist = self:CheckImmunity(destGUID, spellTimer, 20589)
 		if escapeartist == true then
 			log(spellName.." on "..destName.." broke with escape artist")
-		end	
+		end
 	end
 	if category[1044] then
 		freedom = self:CheckImmunity(destGUID, spellTimer, 1044)
 		if freedom == true then
 			log(spellName.." on "..destName.." broke with freedom")
-		end	
+		end
 	end
 	if category[10278] then
 		protection = self:CheckImmunity(destGUID, spellTimer, 10278)
 		if protection == true then
 			log(spellName.." on "..destName.." broke with protection")
-		end	
+		end
 	end
 	if category[18499] then
 		zerker = self:CheckImmunity(destGUID, spellTimer, 18499)
 		if zerker == true then
 			log(spellName.." on "..destName.." broke with zerker rage")
-		end	
+		end
 	end
 	if category[1953] then
 		blink = self:CheckImmunity(destGUID, spellTimer, 1953)
 		if blink == true then
 			log(spellName.." on "..destName.." broke with blink")
-		end	
+		end
 	end
 	if category[31642] then
 		blazspeed = self:CheckImmunity(destGUID, spellTimer, 31642)
 		if blazspeed == true then
 			log(spellName.." on "..destName.." broke with blazing speed")
-		end	
+		end
 	end
 	if category[11305] then
 		sprint = self:CheckImmunity(destGUID, spellTimer, 11305)
 		if sprint == true then
 			log(spellName.." on "..destName.." broke with imp sprint")
-		end	
+		end
 	end
 	if category[31224] then
 		cloak = self:CheckImmunity(destGUID, spellTimer, 31224)
 		if sprint == true then
 			log(spellName.." on "..destName.." broke with cloak")
-		end	
+		end
 	end
 	if category[34471] then
 		bm = self:CheckImmunity(destGUID, spellTimer, 34471)
 		if bm == true then
 			log(spellName.." on "..destName.." broke with bm")
-		end	
+		end
 	end
 	if category[12292] then
 		deathwish = self:CheckImmunity(destGUID, spellTimer, 12292)
 		if deathwish == true then
 			log(spellName.." on "..destName.." broke with death wish")
-		end	
+		end
 	end
 	if category["dispel"] then
 		dispel = self:CheckDispel(destGUID, spellTimer, spellName)
@@ -697,30 +677,30 @@ function TrinketTracker:CheckTrinket(category, destGUID, destName, spellTimer, s
 		if interrupt == true then
 			log(spellName.." on "..destName.." broke on interrupt")
 		end
-	end	
+	end
 	if category["shapeshift"] then
 		shapeshift = self:CheckShapeShift(destGUID, spellTimer)
 		if shapeshift == true then
 			log(spellName.." on "..destName.." broke on shapeshift")
-		end	
+		end
 	end
 	if category["override"] then
 		override = self:CheckOverride(destGUID, spellTimer, spellName)
 		if override == true then
 			log(spellName.." on "..destName.." broke on being overwriten")
-		end	
+		end
 	end
-	
+
 	return damage, periodicDamage, bigDamage, iceblock, wotf, bubble, escapeartist,
-	stoneform, freedom, protection, dispel, tremor, zerker, sprint, blink, blazspeed,
-	cloak, bm, deathwish, interrupt, shapeshift, override
+		stoneform, freedom, protection, dispel, tremor, zerker, sprint, blink, blazspeed,
+		cloak, bm, deathwish, interrupt, shapeshift, override
 end
 
 function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, ...)
 	--takes all parameters
 	local damage, periodicDamage, bigDamage, iceblock, wotf, bubble, escapeartist,
-	stoneform, freedom, protection, dispel, tremor, zerker, sprint, blink, blazspeed,
-	cloak, bm, deathwish, interrupt, shapeshift, override = select(1, ...)
+		stoneform, freedom, protection, dispel, tremor, zerker, sprint, blink, blazspeed,
+		cloak, bm, deathwish, interrupt, shapeshift, override = select(1, ...)
 	if categoryType == "physicalStun" then
 		if not iceblock and not bubble and not protection and not blink and not bm then
 			self:TrinketUsed(destGUID, destName, spellName)
@@ -728,7 +708,7 @@ function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, 
 	elseif categoryType == "none" then
 		if not override then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end	
+		end
 	elseif categoryType == "physicalPoly" then
 		if not damage and not periodicDamage and not iceblock and not bubble and not protection then
 			self:TrinketUsed(destGUID, destName, spellName)
@@ -740,7 +720,7 @@ function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, 
 	elseif categoryType == "physicalPolyZerkerOverride" then
 		if not damage and not periodicDamage and not iceblock and not bubble and not protection and not zerker and not bm and not override then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end			
+		end
 	elseif categoryType == "physicalRoot" then
 		if not iceblock and not bubble and not protection and not freedom and not escapeartist and not sprint and not blazspeed and not blink and not bm and not shapeshift then
 			self:TrinketUsed(destGUID, destName, spellName)
@@ -748,7 +728,7 @@ function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, 
 	elseif categoryType == "physicalFearTremor" then -- Intimidating Shout needs a hack later because 2 spellIDs with one breaking on every damage, the other on bigDamage
 		if not damage and not periodicDamage and not iceblock and not bubble and not protection and not tremor and not wotf and not zerker and not deathwish then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end
+	end
 	elseif categoryType == "physicalPolyPeriodic" then
 		if not damage and not iceblock and not bubble and not protection and not zerker then
 			self:TrinketUsed(destGUID, destName, spellName)
@@ -756,7 +736,7 @@ function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, 
 	elseif categoryType == "magicPolyPeriodic" then -- Dragon's Breath
 		if not damage and not iceblock and not bubble and not dispel then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end	
+	end
 	elseif categoryType == "magicPoly" then
 		if not damage and not periodicDamage and not iceblock and not bubble and not dispel and not shapeshift and not override then
 			self:TrinketUsed(destGUID, destName, spellName)
@@ -768,15 +748,15 @@ function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, 
 	elseif categoryType == "magicRootsOverride" then
 		if not bigDamage and not iceblock and not bubble and not freedom and not escapeartist and not dispel and not sprint and not blazspeed and not blink and not bm and not cloak and not shapeshift and not override then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end	
+		end
 	elseif categoryType == "magicPolyTremor" then -- Hibernate
 		if not damage and not periodicDamage and not iceblock and not bubble and not dispel and not tremor and not override then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end
+	end
 	elseif categoryType == "magicPolyTremorInterrupt" then -- Mind Control
 		if not damage and not periodicDamage and not iceblock and not bubble and not dispel and not tremor and not interrupt and not wotf then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end	
+	end
 	elseif categoryType == "poisonPolyTremor" then
 		if not damage and not periodicDamage and not iceblock and not bubble and not wotf and not dispel and not tremor and not stoneform then
 			self:TrinketUsed(destGUID, destName, spellName)
@@ -788,26 +768,26 @@ function TrinketTracker:HasTrinket(categoryType, destGUID, destName, spellName, 
 	elseif categoryType == "magicFearTremorOverride" then
 		if not bigDamage and not iceblock and not bubble and not dispel and not wotf and not tremor and not zerker and not deathwish and not override then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end	
+		end
 	elseif categoryType == "magic" then
 		if not iceblock and not bubble and not dispel then
 			self:TrinketUsed(destGUID, destName, spellName)
-		end	
+		end
 	end
 end
 
 function TrinketTracker:TrinketUsed(destGUID, destName, spellName)
-	
+
 	for k, v in pairs(Gladdy.buttons) do
-    local vguid = string.lower(v.guid)
-    if (vguid == string.lower(destGUID)) then
-      Gladdy:Call("Trinket", "Used", k)
-      break
-    end
-  end
-	log("Trinket Used: "..destName.." for "..spellName)
+		local vguid = string.lower(v.guid)
+		if (vguid == string.lower(destGUID)) then
+			Gladdy:Call("Trinket", "Used", k)
+			break
+		end
+	end
+	--log("Trinket Used: "..destName.." for "..spellName)
 	--sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,spellNum,spellName = ...;
-	SendAddonMessage("GladdyTrinketUsed", destGUID)	
+	SendAddonMessage("GladdyTrinketUsed", destGUID)
 end
 
 function TrinketTracker:CheckDispel(destGUID, spellTimer, searchName)
@@ -815,10 +795,10 @@ function TrinketTracker:CheckDispel(destGUID, spellTimer, searchName)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		spellID,spellName,spellSchool,extraSpellID,extraSpellName,extraSchool,auraType = self:TableToArgs(spellTable)
+			spellID,spellName,spellSchool,extraSpellID,extraSpellName,extraSchool,auraType = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
-			if eventType == "SPELL_DISPEL" and extraSpellName == searchName then			
+			if eventType == "SPELL_DISPEL" and extraSpellName == searchName then
 				return true
 			end
 		end
@@ -827,8 +807,8 @@ function TrinketTracker:CheckDispel(destGUID, spellTimer, searchName)
 end
 
 local function round(num, idp)
-  local mult = 10^(idp or 0)
-  return math.floor(num * mult + 0.5) / mult
+	local mult = 10^(idp or 0)
+	return math.floor(num * mult + 0.5) / mult
 end
 
 function TrinketTracker:CheckTremor(destGUID, spellTimer)
@@ -847,10 +827,10 @@ function TrinketTracker:CheckInterrupt(destGUID, spellTimer, searchName)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		spellID,spellName,spellSchool,extraSpellID,extraSpellName,extraSchoo = self:TableToArgs(spellTable)
+			spellID,spellName,spellSchool,extraSpellID,extraSpellName,extraSchoo = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
-			if eventType == "SPELL_INTERRUPT" and extraSpellName == searchName then			
+			if eventType == "SPELL_INTERRUPT" and extraSpellName == searchName then
 				return true
 			end
 		end
@@ -863,10 +843,10 @@ function TrinketTracker:CheckImmunity(destGUID, spellTimer, searchID)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
+			spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
-			if eventType == "SPELL_CAST_SUCCESS" and spellID == searchID then	
+			if eventType == "SPELL_CAST_SUCCESS" and spellID == searchID then
 				return true
 			end
 		end
@@ -879,7 +859,7 @@ function TrinketTracker:CheckDamage(destGUID, spellTimer)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
+			spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
 			if damageEvents[eventType] then
@@ -896,7 +876,7 @@ function TrinketTracker:CheckPeriodicDamage(destGUID, spellTimer)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
+			spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
 			if periodicDamageEvents[eventType] then
@@ -914,7 +894,7 @@ function TrinketTracker:CheckBigDamage(destGUID, spellTimer)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 = self:TableToArgs(spellTable)
+			arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
 			if bigDamageEvents[eventType] then
@@ -941,10 +921,10 @@ function TrinketTracker:CheckShapeShift(destGUID, spellTimer)
 		local spellTable = self.guids[destGUID][i]
 		if not spellTable then return end
 		local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-		spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
+			spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
 		-- buffer in case damage event is timestamped slightly after AURA_REMOVE
 		if timestamp >= spellTimer.startTime and timestamp <= GetTime()+0.1 then
-			if (eventType == "SPELL_CAST_SUCCESS" or eventType =="SPELL_AURA_REMOVED") and shapeshiftIDs[spellID] then	
+			if (eventType == "SPELL_CAST_SUCCESS" or eventType =="SPELL_AURA_REMOVED") and shapeshiftIDs[spellID] then
 				return true
 			end
 		end
@@ -957,17 +937,17 @@ function TrinketTracker:CheckOverride(searchGUID, spellTimer, searchName)
 		for i=0, 10 do
 			local spellTable = v[i]
 			if spellTable and k ~= searchGUID then
-			-- not supposed to look in its own events || searchID = guid from which spell was just removed
-			-- now search OTHER combatlog tables for SPELL_AURA_APPLIED immediately before searchGUID event was found
-			local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
-			spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
-			-- buffer in case damage event is timestamped slightly after AURA_REMOVE
-			--log(timestamp.."  "..eventType.."  "..destGUID.."  "..GetTime())
-			if timestamp >= GetTime()-0.1 and timestamp <= GetTime()+0.1 then
-				if (eventType == "SPELL_AURA_APPLIED" or eventType == "SPELL_AURA_REFRESH") and self.override[spellName] and spellName == searchName then	
-					return true
+				-- not supposed to look in its own events || searchID = guid from which spell was just removed
+				-- now search OTHER combatlog tables for SPELL_AURA_APPLIED immediately before searchGUID event was found
+				local timestamp,eventType,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,
+					spellID,spellName,spellSchool,amount,school,resisted,blocked,absorbed,glancing,crushing = self:TableToArgs(spellTable)
+				-- buffer in case damage event is timestamped slightly after AURA_REMOVE
+				--log(timestamp.."  "..eventType.."  "..destGUID.."  "..GetTime())
+				if timestamp >= GetTime()-0.1 and timestamp <= GetTime()+0.1 then
+					if (eventType == "SPELL_AURA_APPLIED" or eventType == "SPELL_AURA_REFRESH") and self.override[spellName] and spellName == searchName then
+						return true
+					end
 				end
-			end
 			end
 		end
 	end
@@ -980,7 +960,7 @@ function TrinketTracker:CombatLogCache(guidTable, guid, ...)
 		self.guids[guid] = {}
 		guidTable = self.guids[guid]
 	end
-	
+
 	if not guidTable.eventCount then
 		guidTable.eventCount = 0
 	else
@@ -988,17 +968,17 @@ function TrinketTracker:CombatLogCache(guidTable, guid, ...)
 	end
 	local index = mod(guidTable.eventCount, 10)
 	local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19 = select(1, ...)
-	guidTable[index] = {  
+	guidTable[index] = {
 		[0] = arg1, [1] =arg2, [2] =arg3, [3] =arg4, [4] =arg5, [5] =arg6, [6] =arg7, [7] =arg8, [8] =arg9, [9] =arg10, [10] =arg11, [11] =arg12,
-		[12] =arg13, [13] =arg14, [14] =arg15, [15] =arg16, [16] =arg17, [17] =arg18, [18] =arg19, 
+		[12] =arg13, [13] =arg14, [14] =arg15, [15] =arg16, [16] =arg17, [17] =arg18, [18] =arg19,
 	}
 end
 
 function TrinketTracker:TableToArgs(spellTable)
 	return spellTable[0], spellTable[1], spellTable[2], spellTable[3], spellTable[4],
-	spellTable[5], spellTable[6], spellTable[7], spellTable[8], spellTable[9], spellTable[10],
-	spellTable[11], spellTable[12], spellTable[13],	spellTable[14], spellTable[15], spellTable[16],
-	spellTable[17], spellTable[18]
+		spellTable[5], spellTable[6], spellTable[7], spellTable[8], spellTable[9], spellTable[10],
+		spellTable[11], spellTable[12], spellTable[13],	spellTable[14], spellTable[15], spellTable[16],
+		spellTable[17], spellTable[18]
 end
 
 --could take this out eventually, I think
@@ -1038,25 +1018,25 @@ function TrinketTracker:COMBAT_LOG_EVENT_UNFILTERED(...)
 			self:HasTrinket(self.abilities[spellName], destGUID, destName, spellName, self:CheckTrinket(category, destGUID, destName, spellTimer, spellName))
 		end
 	end
-	
+
 	-- "hack" for tremor
 	if (eventType == "SPELL_CAST_SUCCESS" and spellID == 8143) or destName == GetSpellInfo(8143) then
 		self:UpdateTremor(...)
 	end
-	
+
 	-- fake event to prevent from having to cache a lot of SPELL_AURA_REMOVED
 	-- REFRESH sometimes fires REMOVED whereas APPLIED sometimes fires after removed (multiple, inconsistent events -_- )
 	if eventType == "SPELL_AURA_REMOVED" and shapeshiftIDs[spellID] then
 		eventType = "SPELL_CAST_SUCCESS"
 	end
-	
+
 	-- fake event for cases in which a spell gets removed for being casted on another target (see overrideIDs)
 	if (eventType == "SPELL_AURA_APPLIED" or eventType == "SPELL_AURA_REFRESH") and self.override[spellName] then
 		eventType = "SPELL_CAST_SUCCESS"
-		
+
 	end
-	
-	-- save last 11 combatlog events 
+
+	-- save last 11 combatlog events
 	if self.guids and logEvents[eventType] then
 		if eventType == "SPELL_CAST_SUCCESS" and (not immunityIDs[spellID] and not shapeshiftIDs[spellID] and not self.override[spellName]) then return end
 		-- sometimes SPELL_CAST_SUCCESS only has a sourceGUID, no destGUID. Unlike SPELL_AURA_APPLIED it's also fired before SPELL_AURA_REMOVE
@@ -1070,12 +1050,11 @@ function TrinketTracker:COMBAT_LOG_EVENT_UNFILTERED(...)
 		else
 			self:CombatLogCache(self.guids[destGUID], destGUID, self:CombatLogEventToTable(...))
 		end
-		
+
 	end
 end
 
 -- hack for servers with serverside trinket support
 if RealmNames[GetRealmName()] then
 	TrinketTracker:UnregisterAllEvents()
-	TrinketTracker:RegisterEvent("CHAT_MSG_ADDON")
-end	
+end
