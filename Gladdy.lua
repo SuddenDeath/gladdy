@@ -628,11 +628,9 @@ function Gladdy:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceG
         local Auras = Gladdy.modules.Auras
         local aura = Auras.auras[spellName]
 
-        local factor = self:Call("Diminishings", "Gain", destUnit, spellName)
-
         if (aura and aura.priority >= (Auras.frames[destUnit].priority or 0)) then
             local auraIcon = select(3, GetSpellInfo(spellID))
-            local auraExpTime = aura.duration / (factor or 1)
+            local auraExpTime = aura.duration
 
             self:SendMessage("AURA_GAIN", destUnit, spellName, auraIcon, auraExpTime, aura.priority)
             button.spells[spellName] = t
@@ -647,13 +645,10 @@ function Gladdy:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceG
             local Auras = Gladdy.modules.Auras
             local aura = Auras.auras[spellName]
 
-            self:Call("Diminishings", "Fade", destUnit, spellName)
-            local factor = self:Call("Diminishings", "Gain", destUnit, spellName)
-
             if (aura and aura.priority >= (Auras.frames[destUnit].priority or 0)) then
                 local auraIcon = select(3, GetSpellInfo(spellID))
-                local auraExpTime = aura.duration / (factor or 1)
-
+                local auraExpTime = aura.duration
+                
                 self:SendMessage("AURA_GAIN", destUnit, spellName, auraIcon, auraExpTime, aura.priority)
                 button.spells[spellName] = t
             end
@@ -663,8 +658,6 @@ function Gladdy:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceG
         if (not button) then return end
 
         self:AuraFade(destUnit, spellName)
-
-        self:Call("Diminishings", "Fade", destUnit, spellName)
 
         local Auras = Gladdy.modules.Auras
         if (spellName == Auras.frames[destUnit].name) then

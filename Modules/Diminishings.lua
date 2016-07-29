@@ -10,7 +10,7 @@ local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
 local Diminishings = Gladdy:NewModule("Diminishings", nil, {
     drFontColor = {r = 1, g = 1, b = 0, a = 1},
-    drFontSize = 10,
+    drFontSize = 20,
     drCooldownPos = "LEFT",
     drIconSize = 30,
 })
@@ -34,12 +34,13 @@ local function StyleActionButton(f)
     normalTex:SetVertexColor(1, 1, 1, 1)
 end
 
+function Diminishings:OnEvent(event, ...)
+	self[event](self, ...)
+end
+
 function Diminishings:Initialise()
     self.frames = {}
-
-    self.text = {"1/2", "1/4", "0" }
-
-    self.spells = {}
+	self.spells = {}
     self.icons = {}
 
     local spells = self:GetDRList()
@@ -50,7 +51,17 @@ function Diminishings:Initialise()
     end
 
     self:RegisterMessage("UNIT_DEATH", "ResetUnit")
+	self:SetScript("OnEvent", Diminishings.OnEvent)
+	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
+
+function Diminishings:COMBAT_LOG_EVENT_UNFILTERED(...)
+	local timestamp, eventType, sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,spellID,spellName,spellSchool,auraType = select ( 1 , ... );
+    local destUnit = Gladdy.guids[destGUID]
+	if eventType == "SPELL_AURA_REMOVED" and destUnit then
+		self:Fade(destUnit, spellName)
+	end
+end	
 
 function Diminishings:CreateFrame(unit)
     local drFrame = CreateFrame("Frame", nil, Gladdy.buttons[unit])
@@ -183,23 +194,12 @@ function Diminishings:Test(unit)
 
     for i = 1, 4 do
         local spell = GetSpellInfo(spells[i])
-        self:Gain(unit, spell)
         self:Fade(unit, spell)
     end
 end
 
-function Diminishings:Gain(unit, spell)
-    local drFrame = self.frames[unit]
-    local dr = self.spells[spell]
-    if (not drFrame or not dr) then return end
-
-    if (not drFrame.tracked[dr]) then
-        drFrame.tracked[dr] = 0
-    end
-
-    drFrame.tracked[dr] = drFrame.tracked[dr] + 1
-
-    return drFrame.tracked[dr]
+function testdr()
+	Diminishings:Fade("arena1", GetSpellInfo(118));
 end
 
 function Diminishings:Fade(unit, spell)
@@ -207,18 +207,13 @@ function Diminishings:Fade(unit, spell)
     local dr = self.spells[spell]
     if (not drFrame or not dr) then return end
 
-    local factor = drFrame.tracked[dr]
-    if (factor ~= nil and factor >= 4) then return end
-
     for i = 1, 16 do
         local icon = drFrame["icon" .. i]
         if (not icon.active or (icon.dr and icon.dr == dr)) then
             icon.dr = dr
-            icon.factor = factor
             icon.timeLeft = 15
             icon.cooldown:SetCooldown(GetTime(), 15)
             icon.texture:SetTexture(self.icons[spell])
-            icon.text:SetText(self.text[factor])
             icon.active = true
 
             self:Positionate(unit)
@@ -256,17 +251,6 @@ function Diminishings:Positionate(unit)
 
             lastIcon = icon
         end
-    end
-end
-
-function Diminishings:GetFactor(unit, spell)
-    local drFrame = self.frames[unit]
-    if (not drFrame) then return end
-
-    local dr = self.spells[spell]
-
-    if (dr and drFrame.tracked[dr]) then
-        return drFrame.tracked[dr]
     end
 end
 
@@ -399,7 +383,6 @@ function Diminishings:GetDRList()
         [30283] = "stun",                   -- Shadowfury
         [6358] = "fear",                    -- Seduction (Succubus)
         [5484] = "fear",                    -- Howl of Terror
-        [31117] = "silence",                -- Unstable Affliction
 
         -- WARRIOR
         [12809] = "stun",                   -- Concussion Blow
