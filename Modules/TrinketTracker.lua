@@ -359,7 +359,8 @@ local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
 
 local TrinketTracker = Gladdy:NewModule("TrinketTracker", nil, {
-	ttDebug = false,
+	ttActive = true, -- should TrinketTracker be used or not
+	ttDebug = false, -- debug printing to chat
 	timeOutBuffer = 0.5, -- time before the CC naturally ends that trinket will still be tracked
 	bigDamageValue = 800, -- how much damage needs to be taken during root/fear before we can assume it wasn't trinketed
 })
@@ -373,16 +374,19 @@ local function log(msg)
 	end
 end
 
-function TrinketTracker:Initialise()
-
-end
-
 function TrinketTracker:OnEvent(event, ...) -- functions created in "object:method"-style have an implicit first parameter of "self", which points to object
 	self[event](self, ...) -- route event parameters to LoseControl:event methods
 end
-TrinketTracker:SetScript("OnEvent", TrinketTracker.OnEvent)
-TrinketTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
-TrinketTracker:RegisterEvent("PLAYER_LOGIN")
+
+function TrinketTracker:Initialise()
+	self:SetScript("OnEvent", TrinketTracker.OnEvent)
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_LOGIN")
+	
+	if RealmNames[GetRealmName()] or Gladdy.db.ttActive == false then
+		self:UnregisterAllEvents()
+	end
+end
 
 local function option(params)
 	local defaults = {
@@ -406,17 +410,23 @@ end
 
 function TrinketTracker:GetOptions()
 	return {
+		ttActive = option({
+			type = "toggle",
+			name = L["Enable TrinketTracker (required /reload)"],
+			desc = L["Enable/disable TrinketTracker - server side messages will still work"],
+			order = 2,
+		}),
 		ttDebug = option({
 			type = "toggle",
 			name = L["Debug logs for what broke CC"],
 			desc = L["Enable/disable chat logging showing what broke a specific CC."],
-			order = 2,
+			order = 3,
 		}),
 		timeOutBuffer = option({
 			type = "range",
 			name = L["Minimum CC duration for TrinketTracker to work"],
 			desc = L["Below this duration left on the CC, it will assume that the player didn't trinket because duration guesses were incorrect."],
-			order = 3,
+			order = 4,
 			min = 0.1,
 			max = 1,
 			step = 0.1,
@@ -425,7 +435,7 @@ function TrinketTracker:GetOptions()
 			type = "range",
 			name = L["Minimum damage done for fear/roots to break from"],
 			desc = L["Set the minimum damage done to a player before the addon will assume that damage broke CC like fear or roots."],
-			order = 4,
+			order = 5,
 			min = 100,
 			max = 1500,
 			step = 100,
@@ -1054,7 +1064,3 @@ function TrinketTracker:COMBAT_LOG_EVENT_UNFILTERED(...)
 	end
 end
 
--- hack for servers with serverside trinket support
-if RealmNames[GetRealmName()] then
-	TrinketTracker:UnregisterAllEvents()
-end
