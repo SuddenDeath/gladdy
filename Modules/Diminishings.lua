@@ -344,7 +344,7 @@ function Diminishings:GetDRList()
         -- DRUID
         [33786] = "cycloneblind",           -- Cyclone
         [18658] = "sleep",                  -- Hibernate
-        [16979] = "root",                   -- Feral Charge
+        [26989] = "root",		    -- Entangling roots
         [8983] = "stun",                    -- Bash
         [9005] = "stun",                    -- Pounce
         [22570] = "disorient",              -- Maim
@@ -387,6 +387,7 @@ function Diminishings:GetDRList()
         -- WARRIOR
         [12809] = "stun",                   -- Concussion Blow
         [25274] = "stun",                   -- Intercept Stun
+        [5246] = "fear",                    -- Intimidating Shout
 
         -- TAUREN
         [20549] = "stun",                   -- War Stomp
